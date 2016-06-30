@@ -1,0 +1,1 @@
+var this = 'is'; // an example
