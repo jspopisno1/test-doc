@@ -11,10 +11,16 @@ var utils = {
 
     parsePath: function(path) {
         var rgx = /__\[(\w+)\]([^\[]+)$/
-        var pathWithoutTag = path.replace(rgx, '$1')
-        var tag = (rgx.exec(path) || {})[1]
+        var pathWithoutTag = path.replace(rgx, '$2')
+        var tag = (rgx.exec(path) || {1: ''})[1]
+
+        var rgxSplit = /(.*)\.([^/]+)$/
+        console.log('@debug, path', pathWithoutTag)
+        var parts = rgxSplit.exec(pathWithoutTag) || {1: pathWithoutTag, 2: ''}
+
         return {
-            pathWithoutTag: pathWithoutTag,
+            pathname: parts[1],
+            extname: parts[2],
             tag: tag
         }
     },
@@ -29,7 +35,7 @@ var utils = {
         var stat = fs.statSync(path)
         var isFile = stat.isFile()
 
-        var relativePath = npath.relative(base, path)
+        var relativePath = npath.relative(base, path).replace('\\', '/')
 
         // http://www.linux-faqs.info/general/difference-between-mtime-ctime-and-atime
         var mtime = new Date(stat.mtime).getTime()
