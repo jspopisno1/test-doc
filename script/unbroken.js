@@ -110,7 +110,7 @@ var unbrokenUtils = {
         CHAR3_IN_BASE36: Math.pow(36, 3)
     },
 
-    getHash: function() {
+    getTag: function() {
         var date = new Date()
         var time = date.getTime()
 
@@ -123,8 +123,9 @@ var unbrokenUtils = {
         for (var path in newPages) {
             var fileInfo = newPages[path]
             
-            var hash = this.getHash()
+            var tag = this.getTag()
             fs.renameSync(contentPath + '/' + path,
+                fileInfo.tag = tag
                 contentPath + '/' + fileInfo.pathname + '__[' + fileInfo.tag + '].' + fileInfo.extname)
         }
     }
