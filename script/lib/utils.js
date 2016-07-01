@@ -19,13 +19,13 @@ var utils = {
         var isFile = stat.isFile()
 
         var relativePath = npath.relative(base, path)
+
+        // http://www.linux-faqs.info/general/difference-between-mtime-ctime-and-atime
         var mtime = new Date(stat.mtime).getTime()
-        var ctime = new Date(stat.ctime).getTime()
 
         if (isFile) {
-            result[relativePath] = {path: relativePath, mtime: mtime, ctime: ctime, isFile: true}
+            result[relativePath] = {path: relativePath, mtime: mtime}
         } else {
-            result[relativePath] = {path: relativePath, mtime: mtime, ctime: ctime, isFile: false}
 
             var files = fs.readdirSync(path)
             files.map(function(file) {

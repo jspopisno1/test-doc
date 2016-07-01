@@ -25,7 +25,6 @@ fs.writeFileSync('tmp.json', JSON.stringify(allFileInfo, null, 3))
  *          namedPath   // String - path of the file without tag
  *          tag         // String - the auto generated tag
  *          mtime       // number - timestamp of modified
- *          ctime       // number - timestamp of changed
  *  tags: {}
  *      $tag: filePath      // String
  *  links: {}
