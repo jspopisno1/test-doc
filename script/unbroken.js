@@ -124,8 +124,9 @@ var unbrokenUtils = {
             var fileInfo = newPages[path]
             
             var tag = this.getTag()
+            fileInfo.tag = tag
+            
             fs.renameSync(contentPath + '/' + path,
-                fileInfo.tag = tag
                 contentPath + '/' + fileInfo.pathname + '__[' + fileInfo.tag + '].' + fileInfo.extname)
         }
     }
