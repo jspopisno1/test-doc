@@ -115,7 +115,7 @@ var unbrokenUtils = {
         var time = date.getTime()
 
         var remainder = time % this.CONTS.DAY_IN_MILLIS
-        return '' + date.getFullYear() + (date.getMonth() + 1) + date.getDate() + '_' 
+        return '' + date.getFullYear() + (date.getMonth() + 1) + date.getDate() + '_'
             + remainder.toString(36) + Math.floor(this.CONTS.CHAR3_IN_BASE36 * Math.random()).toString(36)
     },
 
@@ -133,6 +133,12 @@ var unbrokenUtils = {
 }
 
 var diff = unbrokenUtils.diffFiles(fileIndex, allFileInfo)
+
+for (var tag in diff.duplicatePages) {
+    console.log('[ERROR] : 发现重复页面!! 程序终止.', diff.duplicatePages)
+    process.exit(1)
+}
+
 unbrokenUtils.handleNewPages(diff.newPages, config.contentPath)
 
 
