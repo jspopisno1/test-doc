@@ -119,17 +119,19 @@ var unbrokenUtils = {
             + remainder.toString(36) + Math.floor(this.CONTS.CHAR3_IN_BASE36 * Math.random()).toString(36)
     },
 
-    handleNewPages: function(newPages) {
+    handleNewPages: function(newPages, contentPath) {
         for (var path in newPages) {
             var fileInfo = newPages[path]
             
             var hash = this.getHash()
-            fs.renameSync(path, fileInfo.pathname + '__[' + fileInfo.tag + '].' + fileInfo.extname)
+            fs.renameSync(contentPath + '/' + path,
+                contentPath + '/' + fileInfo.pathname + '__[' + fileInfo.tag + '].' + fileInfo.extname)
         }
     }
 }
 
 var diff = unbrokenUtils.diffFiles(fileIndex, allFileInfo)
+unbrokenUtils.handleNewPages(diff.newPages, config.contentPath)
 
 
 console.log(allFileInfo, diff)
