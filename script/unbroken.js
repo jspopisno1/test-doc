@@ -115,7 +115,7 @@ var unbrokenUtils = {
         var time = date.getTime()
 
         var remainder = time % this.CONTS.DAY_IN_MILLIS
-        return '' + date.getFullYear() + (date.getMonth() + 1) + date.getDate()
+        return '' + date.getFullYear() + (date.getMonth() + 1) + date.getDate() + '_' 
             + remainder.toString(36) + Math.floor(this.CONTS.CHAR3_IN_BASE36 * Math.random()).toString(36)
     },
 
@@ -125,7 +125,7 @@ var unbrokenUtils = {
             
             var tag = this.getTag()
             fileInfo.tag = tag
-            
+
             fs.renameSync(contentPath + '/' + path,
                 contentPath + '/' + fileInfo.pathname + '__[' + fileInfo.tag + '].' + fileInfo.extname)
         }
