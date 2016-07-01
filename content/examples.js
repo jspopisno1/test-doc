@@ -1,1 +1,1 @@
-var this = 'is'; // an example
+var this = 'is'; // an example 
