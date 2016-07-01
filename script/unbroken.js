@@ -1,6 +1,7 @@
 var fs = require('fs')
 var npath = require('path')
 var utils = require('./lib/utils')
+var _ = require('lodash')
 
 var configIniter = require('./config/config')
 
@@ -35,5 +36,10 @@ fs.writeFileSync('tmp.json', JSON.stringify(allFileInfo, null, 3))
  */
 var fileIndex = utils.readJSONFile(config.fileIndexPath)
 
+var unbrokenUtils = {
+    diffFiles: function(fileIndex, allFileInfo) {
+        var tags = _.extend({}, fileIndex.tags)
+    }
+}
 
 console.log(allFileInfo)

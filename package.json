@@ -11,5 +11,8 @@
     "url": "http://gitlab.baidu.com/be-fe/matriks-doc.git"
   },
   "author": "befe",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.13.1"
+  }
 }

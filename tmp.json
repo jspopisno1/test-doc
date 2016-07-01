@@ -1,102 +1,103 @@
 {
    "example.html": {
-      "path": "example.html",
-      "mtime": 1467366995000
+      "mtime": 1467366995000,
+      "pathWithoutTag": "example.html"
    },
    "examples.js": {
-      "path": "examples.js",
-      "mtime": 1467367231000
+      "mtime": 1467367231000,
+      "pathWithoutTag": "examples.js"
    },
    "imgs/hello.png": {
-      "path": "imgs/hello.png",
-      "mtime": 1467295476000
+      "mtime": 1467295476000,
+      "pathWithoutTag": "imgs/hello.png"
    },
    "matriks react使用指南/README.md": {
-      "path": "matriks react使用指南/README.md",
-      "mtime": 1467267163000
+      "mtime": 1467267163000,
+      "pathWithoutTag": "matriks react使用指南/README.md"
    },
    "matriks react使用指南/guide.md": {
-      "path": "matriks react使用指南/guide.md",
-      "mtime": 1467267005000
+      "mtime": 1467267005000,
+      "pathWithoutTag": "matriks react使用指南/guide.md"
    },
    "matriks react使用指南/如何写inline样式__[20150630_testhash].md": {
-      "path": "matriks react使用指南/如何写inline样式__[20150630_testhash].md",
-      "mtime": 1467296394000
+      "mtime": 1467296394000,
+      "pathWithoutTag": "matriks react使用指南/如何写inline样式20150630_testhash",
+      "tag": "20150630_testhash"
    },
    "matriks react使用指南/如何发送ajax请求.md": {
-      "path": "matriks react使用指南/如何发送ajax请求.md",
-      "mtime": 1467296440000
+      "mtime": 1467296440000,
+      "pathWithoutTag": "matriks react使用指南/如何发送ajax请求.md"
    },
    "matriks react使用指南/如何引入样式和图片等静态资源.md": {
-      "path": "matriks react使用指南/如何引入样式和图片等静态资源.md",
-      "mtime": 1467333697000
+      "mtime": 1467333697000,
+      "pathWithoutTag": "matriks react使用指南/如何引入样式和图片等静态资源.md"
    },
    "matriks react使用指南/如何循环.md": {
-      "path": "matriks react使用指南/如何循环.md",
-      "mtime": 1467266406000
+      "mtime": 1467266406000,
+      "pathWithoutTag": "matriks react使用指南/如何循环.md"
    },
    "matriks react使用指南/如何根据条件使用不同的class.md": {
-      "path": "matriks react使用指南/如何根据条件使用不同的class.md",
-      "mtime": 1467266406000
+      "mtime": 1467266406000,
+      "pathWithoutTag": "matriks react使用指南/如何根据条件使用不同的class.md"
    },
    "matriks react使用指南/如何配置路由.md": {
-      "path": "matriks react使用指南/如何配置路由.md",
-      "mtime": 1467266406000
+      "mtime": 1467266406000,
+      "pathWithoutTag": "matriks react使用指南/如何配置路由.md"
    },
    "matriks react使用指南/如何链接组件和store.md": {
-      "path": "matriks react使用指南/如何链接组件和store.md",
-      "mtime": 1467266406000
+      "mtime": 1467266406000,
+      "pathWithoutTag": "matriks react使用指南/如何链接组件和store.md"
    },
    "matriks riot使用指南/如何写inline样式.md": {
-      "path": "matriks riot使用指南/如何写inline样式.md",
-      "mtime": 1467266406000
+      "mtime": 1467266406000,
+      "pathWithoutTag": "matriks riot使用指南/如何写inline样式.md"
    },
    "matriks riot使用指南/如何发送ajax请求.md": {
-      "path": "matriks riot使用指南/如何发送ajax请求.md",
-      "mtime": 1467266406000
+      "mtime": 1467266406000,
+      "pathWithoutTag": "matriks riot使用指南/如何发送ajax请求.md"
    },
    "matriks riot使用指南/如何引入样式和图片等静态资源.md": {
-      "path": "matriks riot使用指南/如何引入样式和图片等静态资源.md",
-      "mtime": 1467266406000
+      "mtime": 1467266406000,
+      "pathWithoutTag": "matriks riot使用指南/如何引入样式和图片等静态资源.md"
    },
    "matriks riot使用指南/如何循环.md": {
-      "path": "matriks riot使用指南/如何循环.md",
-      "mtime": 1467266406000
+      "mtime": 1467266406000,
+      "pathWithoutTag": "matriks riot使用指南/如何循环.md"
    },
    "matriks riot使用指南/如何根据条件使用不同的class.md": {
-      "path": "matriks riot使用指南/如何根据条件使用不同的class.md",
-      "mtime": 1467266406000
+      "mtime": 1467266406000,
+      "pathWithoutTag": "matriks riot使用指南/如何根据条件使用不同的class.md"
    },
    "matriks riot使用指南/如何配置路由.md": {
-      "path": "matriks riot使用指南/如何配置路由.md",
-      "mtime": 1467266406000
+      "mtime": 1467266406000,
+      "pathWithoutTag": "matriks riot使用指南/如何配置路由.md"
    },
    "matriks riot使用指南/如何链接组件和store.md": {
-      "path": "matriks riot使用指南/如何链接组件和store.md",
-      "mtime": 1467266406000
+      "mtime": 1467266406000,
+      "pathWithoutTag": "matriks riot使用指南/如何链接组件和store.md"
    },
    "matriks框架使用指南2/matriks的目录结构.md": {
-      "path": "matriks框架使用指南2/matriks的目录结构.md",
-      "mtime": 1467266406000
+      "mtime": 1467266406000,
+      "pathWithoutTag": "matriks框架使用指南2/matriks的目录结构.md"
    },
    "matriks框架使用指南2/如何创建一个应用.md": {
-      "path": "matriks框架使用指南2/如何创建一个应用.md",
-      "mtime": 1467266406000
+      "mtime": 1467266406000,
+      "pathWithoutTag": "matriks框架使用指南2/如何创建一个应用.md"
    },
    "matriks框架使用指南2/如何升级matriks框架.md": {
-      "path": "matriks框架使用指南2/如何升级matriks框架.md",
-      "mtime": 1467266721000
+      "mtime": 1467266721000,
+      "pathWithoutTag": "matriks框架使用指南2/如何升级matriks框架.md"
    },
    "matriks框架使用指南2/如何查看种子工程版本号及当前种子工程所在版本.md": {
-      "path": "matriks框架使用指南2/如何查看种子工程版本号及当前种子工程所在版本.md",
-      "mtime": 1467267028000
+      "mtime": 1467267028000,
+      "pathWithoutTag": "matriks框架使用指南2/如何查看种子工程版本号及当前种子工程所在版本.md"
    },
    "matriks框架使用指南2/如何给matriks贡献代码.md": {
-      "path": "matriks框架使用指南2/如何给matriks贡献代码.md",
-      "mtime": 1467266406000
+      "mtime": 1467266406000,
+      "pathWithoutTag": "matriks框架使用指南2/如何给matriks贡献代码.md"
    },
    "new-folder/lala.js": {
-      "path": "new-folder/lala.js",
-      "mtime": 1467367120000
+      "mtime": 1467367120000,
+      "pathWithoutTag": "new-folder/lala.js"
    }
 }
