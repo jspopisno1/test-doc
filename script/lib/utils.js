@@ -21,7 +21,8 @@ var utils = {
         return {
             pathname: parts[1],
             extname: parts[2],
-            tag: tag
+            tag: tag,
+            fullpath: parts[1] + '__[' + tag + '].' + parts[2]
         }
     },
 
