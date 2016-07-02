@@ -158,6 +158,7 @@ var unbrokenUtils = {
     },
 
     wrapBackLink: function (title, link, tag, type, hash) {
+        hash = hash || ''
         return '<span type="' + type + '" tag="' + tag + '" hash="' + hash + '">'
             + (type == 'image' ? '!' : '')
             + '[' + title + '](' + link + ')</span>'
@@ -167,15 +168,15 @@ var unbrokenUtils = {
         return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
     },
 
-    getBacklinkRgx: function () {
+    getBacklinkRgx: function (tag) {
         return new RegExp(
             '<span'
-            + '\s*?type="(image|link)"'     // #1 : type
-            + '\s*?tag="([^"]+?)"'          // #2 : tag
-            + '\s*?hash="([^"]*?)">\s*?'    // #3 : hash
+            + '\\s*?type="(image|link)"'     // #1 : type
+            + '\\s*?tag="(' + (tag ? tag : '[^"]+?') + ')"'          // #2 : tag
+            + '\\s*?hash="([^"]*?)">\\s*?'    // #3 : hash
             + '!?\\[([^\\]]*?)\\]'          // #4 : title
             + '\\([^\\)]*?\\)'              // #5 : link
-            + '\s*?</span>',
+            + '\\s*?</span>',
             'g'
         )
     },
@@ -230,6 +231,8 @@ var unbrokenUtils = {
 
         if (matched) {
             return {mode: 'found', tag: matched, hash: hashString}
+        } else {
+            return {node: 'not found'}
         }
     },
 
@@ -276,9 +279,6 @@ var unbrokenUtils = {
             //     'g'
             // )
 
-            var specialMarks = rgxSpecialMark.exec(fileContent)
-            var backlinksOnFile = rgxBacklinks.exec(fileContent)
-
             for (var backLinkTag in backlinks) {
                 delete backlinks[backLinkTag][tag]
             }
@@ -310,7 +310,7 @@ var unbrokenUtils = {
                     // console.log('@debug, target = ', targetPath)
 
                     if (targetPath) {
-                        var targetPathInfo = utils.parsePath(targetPath)
+                        var targetPathInfo = utils.parsePath(npath.relative(contentPath, targetPath))
                         if (!targetPathInfo.tag) targetPathInfo.tag = self.getTag()
                         targetPathInfo.path = self.generatePath(targetPathInfo)
 
@@ -341,11 +341,44 @@ var unbrokenUtils = {
                         actionNotDone[tag] = 1
                         return match
                     }
+                } else {
+                    return match
                 }
             })
 
             contentProcessed[tag] = 1
-            // console.log('@debug, backlinks = ', backlinks, fileContent)
+            console.log('@debug, backlinks = ', backlinks, fileContent)
+        }
+        return {
+            contentProcessed: contentProcessed,
+            actionNotDone: actionNotDone
+        }
+    },
+
+    handledPathChanged: function (pathChanged, contentPath, currentTags, backlinks, contentProcessed) {
+        var self = this
+
+        for (var pathChangedTag in pathChanged) {
+            var backlinksForTag = backlinks[pathChangedTag]
+            if (backlinksForTag) {
+                for (var tagToProcess in backlinksForTag) {
+                    if (!contentProcessed[tagToProcess]) {
+                        var fileInfo = currentTags[tagToProcess]
+
+                        var fileContent = fs.readFileSync(npath.resolve(contentPath + '/' + fileInfo.path))
+                            .toString()
+
+                        var rgxBacklinks = self.getBacklinkRgx(tagToProcess)
+
+                        fileContent = fileContent.replace(rgxBacklinks, function (type, thisTag, hash, title, link) {
+                            return self.wrapBackLink(title,
+                                '/' + (currentTags[pathChangedTag] || {path: '__NOT_FOUND__'}).path
+                                + (hash ? '#' + hash : '')
+                                , tagToProcess, type, hash)
+                        })
+                    }
+                }
+            }
         }
     }
 }
@@ -397,7 +430,12 @@ for (var tag in diff.duplicatePages) {
 var currentTags = {}
 unbrokenUtils.handleNewPages(diff.newPages, config.contentPath, currentTags, diff.contentChanged)
 unbrokenUtils.handleUnknownPages(diff.unknownPages, currentTags, diff.contentChanged)
-unbrokenUtils.handleContentChanged(diff.contentChanged, config.contentPath, currentTags, fileIndex.backlinks)
+
+var resultFromContentChanged = unbrokenUtils.handleContentChanged(diff.contentChanged,
+    config.contentPath, currentTags, fileIndex.backlinks)
+
+unbrokenUtils.handledPathChanged(diff.pathChanged, config.contentPath,
+    currentTags, fileIndex.backlinks, resultFromContentChanged.contentProcessed)
 
 
 // console.log('@debug, all file info=', allFileInfo, diff)
