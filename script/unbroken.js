@@ -254,6 +254,7 @@ var unbrokenUtils = {
 
             var path = contentPath + '/' + fileInfo.path
             var fileContent = fs.readFileSync(path).toString()
+            var initialFileContent = fileContent
 
             /*
              特殊的标记 类似 @add: ... @
@@ -318,7 +319,7 @@ var unbrokenUtils = {
 
                         // console.log('@debug, target info = ', targetPathInfo)
                         // targetPathInfo.path =
-                        // utils.ensureFile(targetPath, '')
+                        utils.ensureFile(targetPath, '')
 
                         self.setBacklink(targetPathInfo.tag, targetPath.tag, backlinks)
 
@@ -349,6 +350,11 @@ var unbrokenUtils = {
             contentProcessed[tag] = 1
             console.log('@debug, backlinks = ', backlinks, fileContent)
         }
+
+        if (fileContent != initialFileContent) {
+            fs.writeFileSync(path, fileContent)
+        }
+
         return {
             contentProcessed: contentProcessed,
             actionNotDone: actionNotDone
@@ -357,6 +363,7 @@ var unbrokenUtils = {
 
     handledPathChanged: function (pathChanged, contentPath, currentTags, backlinks, contentProcessed) {
         var self = this
+        var fileContents = {}
 
         for (var pathChangedTag in pathChanged) {
             var backlinksForTag = backlinks[pathChangedTag]
@@ -364,9 +371,17 @@ var unbrokenUtils = {
                 for (var tagToProcess in backlinksForTag) {
                     if (!contentProcessed[tagToProcess]) {
                         var fileInfo = currentTags[tagToProcess]
+                        var path = npath.resolve(contentPath + '/' + fileInfo.path)
 
-                        var fileContent = fs.readFileSync(npath.resolve(contentPath + '/' + fileInfo.path))
-                            .toString()
+                        if (path in fileContents) {
+                            var fileContent = fileContents[path].fileContent
+                        } else {
+                            var fileContent = fs.readFileSync(path).toString()
+                            fileContents[path] = {
+                                initialContent: fileContent,
+                                fileContent: fileContent
+                            }
+                        }
 
                         var rgxBacklinks = self.getBacklinkRgx(tagToProcess)
 
@@ -380,6 +395,81 @@ var unbrokenUtils = {
                 }
             }
         }
+
+        for (var path in fileContents) {
+            if (fileContents[path].initialContent != fileContents[path].fileContent) {
+                fs.writeFileSync(path, fileContents[path].fileContent)
+            }
+        }
+    },
+
+    /**
+     * There are two types of missing : toTag & fromTag in backlinks
+     *
+     * We will first tidy up all fromTag that are missing
+     * And if all fromTags are cleaned for a toTag, it will be removed from backlinks
+
+     * Regarding toTag, we will simply show an warning about the problem, and let user know
+     * from which path the toTag is mentioned
+     * @param backlinks
+     * @param currentTags
+     */
+    detectMissingPages: function (backlinks, currentTags) {
+        var toTagWithoutFromTag = []
+        var missingTags = {}, hasMissintTag = false
+
+        for (var toTag in backlinks) {
+            var fromTagCount = 0
+            var missingFromTags = []
+            var toTagBacklinks = backlinks[toTag]
+
+            for (var fromTag in toTagBacklinks) {
+                if (!currentTags[fromTag]) {
+                    missingFromTags.push(fromTag)
+                } else {
+                    fromTagCount ++
+                }
+            }
+
+            missingFromTags.map(function(fromTag) {
+                delete toTagBacklinks[fromTag]
+            })
+
+            if (!fromTagCount) {
+                toTagWithoutFromTag.push(toTag)
+            }
+
+            if (!currentTags[toTag]) {
+                missingTags[toTag] = 1
+                hasMissintTag = true
+            }
+        }
+
+        toTagWithoutFromTag.map(function(toTag) {
+            delete backlinks[toTag]
+        })
+
+        return hasMissintTag ? missingTags : null
+    },
+
+    dumpFileIndex: function(actionNotDone, currentTags, backlinks) {
+        var tags = {}, now = new Date().getTime()
+        for (var tag in currentTags) {
+            var fileInfo = currentTags[tag]
+            if (tag in actionNotDone) {
+                fileInfo.mtime = 0
+            } else {
+                fileInfo.mtime = now
+            }
+            tags[tag] = fileInfo
+        }
+
+        var fileIndex = {
+            tags: tags,
+            backlinks: backlinks
+        }
+
+        fs.writeFileSync(config.fileIndexPath, JSON.stringify(fileIndex, null, 3))
     }
 }
 
@@ -409,14 +499,12 @@ var unbrokenUtils = {
  //                 $tag2: 1
  //
  // path changed =>
- //     查找需要替换的 links
- //         LinksToProcess
+ //     查找需要替换的 links 并处理
  //
  // 后续处理:
- //     利用 linksToProcess 处理所有 links
  //     利用 backlinks 和 globalTags 检测丢失的 tags, 并报错
- //         把丢失的 tags 的 path 改为 '?' 以方便后续运行检测出来问题
  //
+    保存最后结果: fileIndex
  //
  */
 
@@ -436,6 +524,22 @@ var resultFromContentChanged = unbrokenUtils.handleContentChanged(diff.contentCh
 
 unbrokenUtils.handledPathChanged(diff.pathChanged, config.contentPath,
     currentTags, fileIndex.backlinks, resultFromContentChanged.contentProcessed)
+
+var missingTags = unbrokenUtils.detectMissingPages(fileIndex.backlinks, currentTags)
+
+if (missingTags) {
+    console.log('[WARNING] : 检测到有丢失的页面, 信息如下: ')
+    for (var toTag in missingTags) {
+        console.log('未找到页面 Tag : ' + toTag, ' 引用的页面为: ')
+        for (var fromTag in missingTags[toTag]) {
+            var fileInfo = currentTags[fromTag]
+            console.log(' <== ', fileInfo.path)
+        }
+    }
+}
+
+unbrokenUtils.dumpFileIndex(resultFromContentChanged.actionNotDone, currentTags, fileIndex.backlinks)
+
 
 
 // console.log('@debug, all file info=', allFileInfo, diff)
