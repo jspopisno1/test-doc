@@ -22,7 +22,7 @@ var utils = {
             pathname: parts[1],
             extname: parts[2],
             tag: tag,
-            fullpath: parts[1] + '__[' + tag + '].' + parts[2]
+            path: parts[1] + '__[' + tag + '].' + parts[2]
         }
     },
 
@@ -66,7 +66,7 @@ var utils = {
             var json = JSON.parse(jsonString)
             if (!json) {return {}}
         } catch(ex) {
-            return {}
+            return {tag: {}, backlinks: {}}
         }
         return json
     }
