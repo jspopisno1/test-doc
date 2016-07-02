@@ -203,7 +203,7 @@ for (var tag in diff.duplicatePages) {
 var currentTags = {}
 unbrokenUtils.handleNewPages(diff.newPages, config.contentPath, currentTags, diff.contentChanged)
 unbrokenUtils.handleUnknownPages(diff.unknownPages, currentTags)
-unbrokenUtils.handleContentChanged(diff.contentChanged, config.contentPath, fileIndex.backlinks)
+unbrokenUtils.handleContentChanged(diff.contentChanged, config.contentPath, currentTags, fileIndex.backlinks)
 
 
 console.log(allFileInfo, diff)
