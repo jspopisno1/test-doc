@@ -127,7 +127,7 @@ var unbrokenUtils = {
             + remainder.toString(36)
     },
 
-    generatePath: function(fileInfo)  {
+    generatePath: function (fileInfo) {
         return fileInfo.pathname + '__[' + fileInfo.tag + ']' +
             (fileInfo.extname ? '.' + fileInfo.extname : '')
     },
@@ -163,8 +163,57 @@ var unbrokenUtils = {
         }
     },
 
-    wrapBackLink: function(title, link, tag, type) {
-        return '<span type="' + type + '" tag="' + tag + '">[' + title + '](' + link + ')</span>'
+    wrapBackLink: function (title, link, tag, type, hash) {
+        return '<span type="' + type + '" tag="' + tag + '" hash="' + hash + '">[' + title + '](' + link + ')</span>'
+    },
+
+    escapeRegExp: function (str) {
+        return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+    },
+
+    searchInPath: function (keywordString, currentTags) {
+        var rgxHash = /#(.*)$/
+        var hashString = ''
+        keywordString = keywordString.replace(rgxHash, function(match, hash) {
+            hashString = hash || ''
+            return ''
+        })
+
+        var rgxTag = /:(.*)$/
+        var tagString = ''
+        keywordString = keywordString.replace(rgxTag, function(match, tag) {
+            tagString = tag || ''
+            return ''
+        })
+
+        var keywords = keywordString.split('/')
+        var self = this
+
+        var regexpString = '^'
+            + keywords.map(function (keyword, index) {
+                var regexpStringPart
+                if (index == keywords.length - 1) {
+                    regexpStringPart = '[^/]*?' + self.escapeRegExp(keyword)
+                            .replace(/\s+/g, '[^/]*?') + '[^/]*?'
+                } else {
+                    regexpStringPart = '.*?' + self.escapeRegExp(keyword)
+                            .replace(/\s+/g, '.*?') + '.*?'
+                }
+                return regexpStringPart
+            }).join('/')
+                + (!!tagString ? '__\\[' + tagString + '\\].*?' : '')
+            + '$'
+
+        var rgx = new RegExp(regexpString)
+
+        for (var tag in currentTags) {
+            var fileInfo = currentTags[tag]
+
+            var path = fileInfo.path
+            if (path.match(rgx)) {
+                console.log('@debug, matched = ', path, rgx)
+            }
+        }
     },
 
     handleContentChanged: function (contentChanged, contentPath, currentTags, backlinks) {
@@ -208,7 +257,7 @@ var unbrokenUtils = {
             var backlinksOnFile = rgxBacklinks.exec(fileContent)
 
 
-            fileContent = fileContent.replace(rgxSpecialMark, function(match, _tmp, action, content) {
+            fileContent = fileContent.replace(rgxSpecialMark, function (match, _tmp, action, content) {
                 console.log('@debug, marks = ', action, content)
 
                 content = _.trim(content)
@@ -220,11 +269,11 @@ var unbrokenUtils = {
                         var dirname = npath.dirname(path)
                         var targetPath = npath.resolve(dirname + '/' + content)
                     }
-                    
+
                     console.log('@debug, target = ', targetPath)
-                    
+
                     if (targetPath) {
-                        var  targetPathInfo = utils.parsePath(targetPath)
+                        var targetPathInfo = utils.parsePath(targetPath)
                         if (!targetPathInfo.tag) targetPathInfo.tag = self.getTag()
                         targetPathInfo.path = self.generatePath(targetPathInfo)
 
@@ -238,7 +287,7 @@ var unbrokenUtils = {
                         return self.wrapBackLink(targetPathInfo.filename, '?', targetPathInfo.tag, 'link')
                     }
                 } else if (action == 'image' || action == 'link') {
-                    
+                    self.searchInPath(content, currentTags)
                 }
 
             })
