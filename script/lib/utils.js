@@ -3,7 +3,17 @@ var npath = require('path')
 var _ = require('lodash')
 
 var utils = {
+    ensureFolder: function(path) {
+        var dirname = npath.dirname(path)
+        if (!fs.existsSync(dirname)) {
+            this.ensureFolder(dirname)
+        }
+        fs.mkdirSyc(path)
+    },
+
     ensureFile: function(path, defaultContent) {
+        this.ensureFolder(npath.dirname(path))
+
         if (!fs.existsSync(path)) {
             fs.writeFileSync(path, defaultContent)
         }
@@ -42,7 +52,7 @@ var utils = {
         var mtime = new Date(stat.mtime).getTime()
 
         if (isFile) {
-            var tagInfo = utils.parsePath(relativePath)
+            var tagInfo = this.parsePath(relativePath)
             result[relativePath] = _.extend({mtime: mtime}, tagInfo)
         } else {
 
@@ -51,7 +61,7 @@ var utils = {
                 if (file.substr(0, 1) == '.') return
 
                 var filePath = path + '/' + file
-                utils.flattenFiles(filePath, base, result)
+                this.flattenFiles(filePath, base, result)
             })
         }
 
