@@ -77,7 +77,9 @@ var unbrokenUtils = {
                         pathChanged[fileInfo.tag] = 1
                     }
                     if (+prevInfo.mtime < fileInfo.mtime) {
-                        contentChanged[fileInfo.tag] = 1
+                        if (/\.md$/.exec(fileInfo.extname)) {
+                            contentChanged[fileInfo.tag] = 1
+                        }
                     }
 
                     delete tags[fileInfo.tag]
@@ -113,7 +115,14 @@ var unbrokenUtils = {
         var time = date.getTime()
 
         var remainder = time % this.CONTS.DAY_IN_MILLIS
-        return '' + date.getFullYear() + (date.getMonth() + 1) + date.getDate() + '_'
+
+        var month = date.getMonth() + 1
+        var day = date.getDate()
+
+        return '' + date.getFullYear()
+            + (month < 10 ? '0' + month : month)
+            + (day < 10 ? '0' + day : day)
+            + '_'
             + remainder.toString(36) + Math.floor(this.CONTS.CHAR3_IN_BASE36 * Math.random()).toString(36)
     },
 
@@ -132,7 +141,9 @@ var unbrokenUtils = {
             fs.renameSync(contentPath + '/' + path, contentPath + '/' + newPath)
 
             currentTags[fileInfo.tag] = fileInfo
-            contentChanged[fileInfo.tag] = 1
+            if (/\.md$/.exec(fileInfo.extname)) {
+                contentChanged[fileInfo.tag] = 1
+            }
         }
     },
 
@@ -141,7 +152,9 @@ var unbrokenUtils = {
             var fileInfo = unknownPages[tag]
 
             currentTags[tag] = fileInfo
-            contentChanged[fileInfo.tag] = fileInfo
+            if (/\.md$/.exec(fileInfo.extname)) {
+                contentChanged[fileInfo.tag] = 1
+            }
         }
     },
 
