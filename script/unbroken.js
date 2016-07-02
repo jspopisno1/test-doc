@@ -76,7 +76,7 @@ var unbrokenUtils = {
                     if (prevInfo.path != path) {
                         pathChanged[fileInfo.tag] = 1
                     }
-                    if (prevInfo.mtime < fileInfo.mtime) {
+                    if (+prevInfo.mtime < fileInfo.mtime) {
                         contentChanged[fileInfo.tag] = 1
                     }
 
@@ -136,11 +136,12 @@ var unbrokenUtils = {
         }
     },
 
-    handleUnknownPages: function(unknownPages, currentTags) {
+    handleUnknownPages: function(unknownPages, currentTags, contentChanged) {
         for (var tag in unknownPages) {
             var fileInfo = unknownPages[tag]
 
             currentTags[tag] = fileInfo
+            contentChanged[fileInfo.tag] = fileInfo
         }
     },
 
@@ -202,7 +203,7 @@ for (var tag in diff.duplicatePages) {
 
 var currentTags = {}
 unbrokenUtils.handleNewPages(diff.newPages, config.contentPath, currentTags, diff.contentChanged)
-unbrokenUtils.handleUnknownPages(diff.unknownPages, currentTags)
+unbrokenUtils.handleUnknownPages(diff.unknownPages, currentTags, diff.contentChanged)
 unbrokenUtils.handleContentChanged(diff.contentChanged, config.contentPath, currentTags, fileIndex.backlinks)
 
 
