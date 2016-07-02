@@ -7,8 +7,9 @@ var utils = {
         var dirname = npath.dirname(path)
         if (!fs.existsSync(dirname)) {
             this.ensureFolder(dirname)
+
+            fs.mkdirSync(path)
         }
-        fs.mkdirSyc(path)
     },
 
     ensureFile: function(path, defaultContent) {
@@ -29,6 +30,7 @@ var utils = {
         var parts = rgxSplit.exec(pathWithoutTag) || {1: pathWithoutTag, 2: ''}
 
         return {
+            filename: npath.basename(parts[1]),
             pathname: parts[1],
             extname: parts[2],
             tag: tag,
@@ -37,6 +39,7 @@ var utils = {
     },
 
     flattenFiles: function(path, base, result) {
+        var self = this
         if (!result) {
             var isInitialCall = true
             base = path
@@ -61,7 +64,7 @@ var utils = {
                 if (file.substr(0, 1) == '.') return
 
                 var filePath = path + '/' + file
-                this.flattenFiles(filePath, base, result)
+                self.flattenFiles(filePath, base, result)
             })
         }
 

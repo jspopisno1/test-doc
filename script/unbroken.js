@@ -163,8 +163,13 @@ var unbrokenUtils = {
         }
     },
 
+    wrapBackLink: function(title, link, tag, type) {
+        return '<span type="' + type + '" tag="' + tag + '">[' + title + '](' + link + ')</span>'
+    },
+
     handleContentChanged: function (contentChanged, contentPath, currentTags, backlinks) {
 
+        var self = this
         var actionNotDone = {}
 
         for (var tag in contentChanged) {
@@ -220,17 +225,25 @@ var unbrokenUtils = {
                     
                     if (targetPath) {
                         var  targetPathInfo = utils.parsePath(targetPath)
-                        if (!targetPathInfo.tag) targetPathInfo.tag = this.getTag()
-                        targetPathInfo.path = this.generatePath(targetPathInfo)
+                        if (!targetPathInfo.tag) targetPathInfo.tag = self.getTag()
+                        targetPathInfo.path = self.generatePath(targetPathInfo)
 
-                        console.('@debug, target info = ', targetPathInfo)
+                        console.log('@debug, target info = ', targetPathInfo)
                         // targetPathInfo.path =
                         // utils.ensureFile(targetPath, '')
+
+                        backlinks[targetPathInfo.tag] = backlinks[targetPath.tag] || {}
+                        backlinks[targetPathInfo.tag][tag] = 1
+
+                        return self.wrapBackLink(targetPathInfo.filename, '?', targetPathInfo.tag, 'link')
                     }
                 } else if (action == 'image' || action == 'link') {
-
+                    
                 }
+
             })
+
+            console.log('@debug, backlinks = ', backlinks, fileContent)
 
         }
     }
