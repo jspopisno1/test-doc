@@ -206,4 +206,4 @@ unbrokenUtils.handleUnknownPages(diff.unknownPages, currentTags)
 unbrokenUtils.handleContentChanged(diff.contentChanged, config.contentPath, currentTags, fileIndex.backlinks)
 
 
-console.log(allFileInfo, diff)
+// console.log('@debug, all file info=', allFileInfo, diff)
