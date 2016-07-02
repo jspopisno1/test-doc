@@ -48,7 +48,6 @@ var unbrokenUtils = {
         // tag : 1 for all followings
         var pathChanged = {}
         var contentChanged = {}
-        var missingPages = {}
 
         // tag : [...fileInfo]
         var duplicatePages = {}
@@ -87,11 +86,6 @@ var unbrokenUtils = {
                     unknownPages[fileInfo.tag] = fileInfo
                 }
             }
-        }
-
-
-        for (var tag in tags) {
-            missingPages[tag] = 1
         }
 
         return {
@@ -164,24 +158,39 @@ var unbrokenUtils = {
     },
 
     wrapBackLink: function (title, link, tag, type, hash) {
-        return '<span type="' + type + '" tag="' + tag + '" hash="' + hash + '">[' + title + '](' + link + ')</span>'
+        return '<span type="' + type + '" tag="' + tag + '" hash="' + hash + '">'
+            + (type == 'image' ? '!' : '')
+            + '[' + title + '](' + link + ')</span>'
     },
 
     escapeRegExp: function (str) {
         return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
     },
 
+    getBacklinkRgx: function () {
+        return new RegExp(
+            '<span'
+            + '\s*?type="(image|link)"'     // #1 : type
+            + '\s*?tag="([^"]+?)"'          // #2 : tag
+            + '\s*?hash="([^"]*?)">\s*?'    // #3 : hash
+            + '!?\\[([^\\]]*?)\\]'          // #4 : title
+            + '\\([^\\)]*?\\)'              // #5 : link
+            + '\s*?</span>',
+            'g'
+        )
+    },
+
     searchInPath: function (keywordString, currentTags) {
         var rgxHash = /#(.*)$/
         var hashString = ''
-        keywordString = keywordString.replace(rgxHash, function(match, hash) {
+        keywordString = keywordString.replace(rgxHash, function (match, hash) {
             hashString = hash || ''
             return ''
         })
 
         var rgxTag = /:(.*)$/
         var tagString = ''
-        keywordString = keywordString.replace(rgxTag, function(match, tag) {
+        keywordString = keywordString.replace(rgxTag, function (match, tag) {
             tagString = tag || ''
             return ''
         })
@@ -189,8 +198,7 @@ var unbrokenUtils = {
         var keywords = keywordString.split('/')
         var self = this
 
-        var regexpString = '^'
-            + keywords.map(function (keyword, index) {
+        var regexpString = keywords.map(function (keyword, index) {
                 var regexpStringPart
                 if (index == keywords.length - 1) {
                     regexpStringPart = '[^/]*?' + self.escapeRegExp(keyword)
@@ -201,30 +209,45 @@ var unbrokenUtils = {
                 }
                 return regexpStringPart
             }).join('/')
-                + (!!tagString ? '__\\[' + tagString + '\\].*?' : '')
+            + (!!tagString ? '__\\[.*?' + tagString + '.*?\\].*?' : '')
             + '$'
 
         var rgx = new RegExp(regexpString)
 
+        var matched = null
         for (var tag in currentTags) {
             var fileInfo = currentTags[tag]
 
             var path = fileInfo.path
             if (path.match(rgx)) {
+                if (matched) {
+                    return {mode: 'duplicated'}
+                }
+                matched = tag
                 console.log('@debug, matched = ', path, rgx)
             }
         }
+
+        if (matched) {
+            return {mode: 'found', tag: matched, hash: hashString}
+        }
+    },
+
+    setBacklink: function (to, from, backlinks) {
+        backlinks[to] = backlinks[to] || {}
+        backlinks[to][from] = 1
     },
 
     handleContentChanged: function (contentChanged, contentPath, currentTags, backlinks) {
 
         var self = this
         var actionNotDone = {}
+        var contentProcessed = {}
 
         for (var tag in contentChanged) {
             var fileInfo = currentTags[tag]
 
-            console.log('@debug, content changed =', fileInfo)
+            // console.log('@debug, content changed =', fileInfo)
 
             var path = contentPath + '/' + fileInfo.path
             var fileContent = fs.readFileSync(path).toString()
@@ -243,22 +266,36 @@ var unbrokenUtils = {
 
             // /(^|[^`])@\w:[^@]+@/g
 
-            var rgxBacklinks = new RegExp(
-                '(^|[^`])'                          // #1: avoid inline code areas
-                + '<span type="(image|link)" tag="(\\w+)">'     // #2: image or link, #3: tag string
-                + '\\s*'
-                + '!?\\[' + '([^\\]]*)' + '\\]'     // #4: title
-                + '\\(' + '([^\\)]*)' + '\\)'       // #5: link (from root, good for gitlab & github)
-                + '</span>',
-                'g'
-            )
+            // var rgxBacklinks = new RegExp(
+            //     '(^|[^`])'                          // #1: avoid inline code areas
+            //     + '<span type="(image|link)" tag="(\\w+)">'     // #2: image or link, #3: tag string
+            //     + '\\s*'
+            //     + '!?\\[' + '([^\\]]*)' + '\\]'     // #4: title
+            //     + '\\(' + '([^\\)]*)' + '\\)'       // #5: link (from root, good for gitlab & github)
+            //     + '</span>',
+            //     'g'
+            // )
 
             var specialMarks = rgxSpecialMark.exec(fileContent)
             var backlinksOnFile = rgxBacklinks.exec(fileContent)
 
+            for (var backLinkTag in backlinks) {
+                delete backlinks[backLinkTag][tag]
+            }
+
+            var rgxBacklink = self.getBacklinkRgx()
+            fileContent = fileContent.replace(rgxBacklink, function (match, type, toTag, hash, title, link) {
+                self.setBacklink(toTag, tag, backlinks)
+
+                return self.wrapBackLink(title,
+                    '/' + (currentTags[toTag] || {path: '__NOT_FOUND__'}).path
+                    + (hash ? '#' + hash : ''),
+                    toTag, type, hash
+                )
+            })
 
             fileContent = fileContent.replace(rgxSpecialMark, function (match, _tmp, action, content) {
-                console.log('@debug, marks = ', action, content)
+                // console.log('@debug, marks = ', action, content)
 
                 content = _.trim(content)
 
@@ -270,30 +307,45 @@ var unbrokenUtils = {
                         var targetPath = npath.resolve(dirname + '/' + content)
                     }
 
-                    console.log('@debug, target = ', targetPath)
+                    // console.log('@debug, target = ', targetPath)
 
                     if (targetPath) {
                         var targetPathInfo = utils.parsePath(targetPath)
                         if (!targetPathInfo.tag) targetPathInfo.tag = self.getTag()
                         targetPathInfo.path = self.generatePath(targetPathInfo)
 
-                        console.log('@debug, target info = ', targetPathInfo)
+                        currentTags[targetPathInfo.tag] = targetPathInfo
+
+                        // console.log('@debug, target info = ', targetPathInfo)
                         // targetPathInfo.path =
                         // utils.ensureFile(targetPath, '')
 
-                        backlinks[targetPathInfo.tag] = backlinks[targetPath.tag] || {}
-                        backlinks[targetPathInfo.tag][tag] = 1
+                        self.setBacklink(targetPathInfo.tag, targetPath.tag, backlinks)
 
-                        return self.wrapBackLink(targetPathInfo.filename, '?', targetPathInfo.tag, 'link')
+                        return self.wrapBackLink(targetPathInfo.filename,
+                            '/' + currentTags[targetPathInfo.tag].path,
+                            targetPathInfo.tag, 'link')
                     }
                 } else if (action == 'image' || action == 'link') {
-                    self.searchInPath(content, currentTags)
-                }
+                    var result = self.searchInPath(content, currentTags)
 
+                    if (result.mode == 'found') {
+                        var fileInfo = currentTags[result.tag]
+                        self.setBacklink(result.tag, tag, backlinks)
+
+                        return self.wrapBackLink(fileInfo.filename,
+                            '/' + (currentTags[result.tag] || {path: '__NOT_FOUND__'}).path
+                            + (result.hash ? '#' + result.hash : ''),
+                            fileInfo.tag, action, result.hash)
+                    } else {
+                        actionNotDone[tag] = 1
+                        return match
+                    }
+                }
             })
 
-            console.log('@debug, backlinks = ', backlinks, fileContent)
-
+            contentProcessed[tag] = 1
+            // console.log('@debug, backlinks = ', backlinks, fileContent)
         }
     }
 }
@@ -332,9 +384,6 @@ var unbrokenUtils = {
  //     利用 backlinks 和 globalTags 检测丢失的 tags, 并报错
  //         把丢失的 tags 的 path 改为 '?' 以方便后续运行检测出来问题
  //
- // missing pages
- //     打印出 warning
- //     并提示所有失效的 backlinks
  //
  */
 
