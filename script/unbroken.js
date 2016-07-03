@@ -157,7 +157,7 @@ var unbrokenUtils = {
             + '\\s*?tag="(' + (tag ? tag : '[^"]+?') + ')"'          // #2 : tag
             + '\\s*?hash="([^"]*?)">\\s*?'    // #3 : hash
             + '!?\\[([^\\]]*?)\\]'          // #4 : title
-            + '\\([^\\)]*?\\)'              // #5 : link
+            + '\\(.*?\\)'              // #5 : link
             + '\\s*?</span>',
             'g'
         )
@@ -368,9 +368,9 @@ var unbrokenUtils = {
                             }
                         }
 
-                        var rgxBacklinks = self.getBacklinkRgx(tagToProcess)
+                        var rgxBacklinks = self.getBacklinkRgx(pathChangedTag)
 
-                        fileContent = fileContent.replace(rgxBacklinks, function (type, thisTag, hash, title, link) {
+                        fileContents[path].fileContent = fileContent.replace(rgxBacklinks, function (match, type, thisTag, hash, title, link) {
                             return self.wrapBackLink(title,
                                 '/' + (currentTags[pathChangedTag] || {path: '__NOT_FOUND__'}).path
                                 + (hash ? '#' + hash : '')
