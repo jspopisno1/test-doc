@@ -18,25 +18,10 @@ var allFileInfo = utils.flattenFiles(config.contentPath)
 
 fs.writeFileSync('tmp.json', JSON.stringify(allFileInfo, null, 3))
 
-/**
- * fileIndex: {}
- *  tags: {}
- *      $tag: {}      // filePath
- *          path: String    - path of the file
- *          pathname: String
- *          extname: String
- *          tag: String     - the auto generated tag
- *          mtime: number   - timestamp of modified
- *  backlinks: {}
- *      $tag: []
- *          $i: tag       // String
- *
- * @type {*|{}}
- */
-var fileIndex = utils.readJSONFile(config.fileIndexPath)
+
 
 var unbrokenUtils = {
-    diffFiles: function (fileIndex, allFileInfo) {
+    diffFiles: function (fileIndex, allFileInfo, currentTags) {
         var tags = _.extend({}, fileIndex.tags)
 
         // current path : fileInfo
@@ -60,6 +45,7 @@ var unbrokenUtils = {
                 // newPages
                 newPages[path] = fileInfo
             } else {
+                currentTags[fileInfo.tag] = fileInfo
                 if (duplicateChecks[fileInfo.tag]) {
                     if (!duplicatePages[fileInfo.tag]) {
                         duplicatePages[fileInfo.tag] = [duplicateChecks[fileInfo.tag]]
@@ -71,7 +57,7 @@ var unbrokenUtils = {
                 }
 
                 if (fileInfo.tag in tags) {
-                    var prevInfo = fileIndex[tags[fileInfo.tag]]
+                    var prevInfo = tags[fileInfo.tag]
                     if (prevInfo.path != path) {
                         pathChanged[fileInfo.tag] = 1
                     }
@@ -295,7 +281,7 @@ var unbrokenUtils = {
                 )
             })
 
-            fileContent = fileContent.replace(rgxSpecialMark, function (match, _tmp, action, content) {
+            fileContent = fileContent.replace(rgxSpecialMark, function (match, leadingChar, action, content) {
                 // console.log('@debug, marks = ', action, content)
 
                 content = _.trim(content)
@@ -319,11 +305,13 @@ var unbrokenUtils = {
 
                         // console.log('@debug, target info = ', targetPathInfo)
                         // targetPathInfo.path =
-                        utils.ensureFile(targetPath, '')
+                        utils.ensureFile(
+                            npath.resolve(contentPath + '/' + targetPathInfo.path),
+                            '')
 
                         self.setBacklink(targetPathInfo.tag, targetPath.tag, backlinks)
 
-                        return self.wrapBackLink(targetPathInfo.filename,
+                        return leadingChar + self.wrapBackLink(targetPathInfo.filename,
                             '/' + currentTags[targetPathInfo.tag].path,
                             targetPathInfo.tag, 'link')
                     }
@@ -334,7 +322,7 @@ var unbrokenUtils = {
                         var fileInfo = currentTags[result.tag]
                         self.setBacklink(result.tag, tag, backlinks)
 
-                        return self.wrapBackLink(fileInfo.filename,
+                        return leadingChar + self.wrapBackLink(fileInfo.filename,
                             '/' + (currentTags[result.tag] || {path: '__NOT_FOUND__'}).path
                             + (result.hash ? '#' + result.hash : ''),
                             fileInfo.tag, action, result.hash)
@@ -508,14 +496,32 @@ var unbrokenUtils = {
  //
  */
 
-var diff = unbrokenUtils.diffFiles(fileIndex, allFileInfo)
+
+var currentTags = {}
+/**
+ * fileIndex: {}
+ *  tags: {}
+ *      $tag: {}      // filePath
+ *          path: String    - path of the file
+ *          pathname: String
+ *          extname: String
+ *          tag: String     - the auto generated tag
+ *          mtime: number   - timestamp of modified
+ *  backlinks: {}
+ *      $tag: []
+ *          $i: tag       // String
+ *
+ * @type {*|{}}
+ */
+var fileIndex = utils.readJSONFile(config.fileIndexPath)
+
+var diff = unbrokenUtils.diffFiles(fileIndex, allFileInfo, currentTags)
 
 for (var tag in diff.duplicatePages) {
     console.log('[ERROR] : 发现重复页面!! 程序终止.', diff.duplicatePages)
     process.exit(1)
 }
 
-var currentTags = {}
 unbrokenUtils.handleNewPages(diff.newPages, config.contentPath, currentTags, diff.contentChanged)
 unbrokenUtils.handleUnknownPages(diff.unknownPages, currentTags, diff.contentChanged)
 
@@ -531,7 +537,7 @@ if (missingTags) {
     console.log('[WARNING] : 检测到有丢失的页面, 信息如下: ')
     for (var toTag in missingTags) {
         console.log('未找到页面 Tag : ' + toTag, ' 引用的页面为: ')
-        for (var fromTag in missingTags[toTag]) {
+        for (var fromTag in fileIndex.backlinks[toTag]) {
             var fileInfo = currentTags[fromTag]
             console.log(' <== ', fileInfo.path)
         }
