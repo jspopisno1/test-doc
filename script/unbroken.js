@@ -374,7 +374,7 @@ var unbrokenUtils = {
                             return self.wrapBackLink(title,
                                 '/' + (currentTags[pathChangedTag] || {path: '__NOT_FOUND__'}).path
                                 + (hash ? '#' + hash : '')
-                                , tagToProcess, type, hash)
+                                , pathChangedTag, type, hash)
                         })
                     }
                 }
