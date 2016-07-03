@@ -21,7 +21,7 @@ var utils = {
     },
 
     parsePath: function(path) {
-        var rgx = /__\[(\w+)\]([^\[]+)$/
+        var rgx = /__\((\w+)\)([^\()]+)$/
         var pathWithoutTag = path.replace(rgx, '$2')
         var tag = (rgx.exec(path) || {1: ''})[1]
 
@@ -34,7 +34,7 @@ var utils = {
             pathname: parts[1],
             extname: parts[2],
             tag: tag,
-            path: parts[1] + '__[' + tag + '].' + parts[2]
+            path: parts[1] + '__(' + tag + ')' + (parts[2] ? '.' + parts[2] : '')
         }
     },
 

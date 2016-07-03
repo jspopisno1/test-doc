@@ -104,7 +104,7 @@ var unbrokenUtils = {
     },
 
     generatePath: function (fileInfo) {
-        return fileInfo.pathname + '__[' + fileInfo.tag + ']' +
+        return fileInfo.pathname + '__(' + fileInfo.tag + ')' +
             (fileInfo.extname ? '.' + fileInfo.extname : '')
     },
 
@@ -192,7 +192,7 @@ var unbrokenUtils = {
                 }
                 return regexpStringPart
             }).join('/')
-            + (!!tagString ? '__\\[.*?' + tagString + '.*?\\].*?' : '')
+            + (!!tagString ? '__\\(.*?' + tagString + '.*?\\).*?' : '')
             + '$'
 
         var rgx = new RegExp(regexpString)
