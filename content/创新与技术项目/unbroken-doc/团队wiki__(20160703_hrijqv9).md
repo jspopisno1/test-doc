@@ -18,5 +18,9 @@
 * 编辑内容
     * 使用基础为 markdown 语法
     * 但unbroken提供了几个 <span type="link" tag="20160703_rthj1hyl" hash="">[有意思的额外功能](/content/创新与技术项目/unbroken-doc/有意思的额外功能__(20160703_rthj1hyl).md)</span>
-*  在 befe-doc 文件夹下, 执行 npm run unbroken
+* 发布
+    * 在 befe-doc 文件夹下, 执行 npm run unbroken
+    * git push 到gitlab
+* 查看
+    * http://gitlab.baidu.com/be-fe/befe-doc/blob/master/content/index__(20160703_evog8ijz).md
 
