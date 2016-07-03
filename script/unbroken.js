@@ -16,10 +16,6 @@ utils.ensureFile(config.fileIndexPath, '{}')
 
 var allFileInfo = utils.flattenFiles(config.contentPath)
 
-fs.writeFileSync('tmp.json', JSON.stringify(allFileInfo, null, 3))
-
-
-
 var unbrokenUtils = {
     diffFiles: function (fileIndex, allFileInfo, currentTags) {
         var tags = _.extend({}, fileIndex.tags)
