@@ -4,8 +4,8 @@ var _ = require('lodash')
 
 var utils = {
     ensureFolder: function(path) {
-        var dirname = npath.dirname(path)
-        if (!fs.existsSync(dirname)) {
+        if (!fs.existsSync(path)) {
+            var dirname = npath.dirname(path)
             this.ensureFolder(dirname)
 
             fs.mkdirSync(path)

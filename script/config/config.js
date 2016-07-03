@@ -8,7 +8,7 @@ module.exports = {
         config.contentPath = npath.resolve(root + params.content)
         config.scriptPath = npath.resolve(root + (params.script || '/script'))
 
-        config.fileIndexPath = npath.resolve(config.scriptPath + '/config/file-index.js')
+        config.fileIndexPath = npath.resolve(config.scriptPath + '/config/file-index.json')
     },
     config: config
 }
