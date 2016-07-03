@@ -1,0 +1,18 @@
+{
+  "name": "matriks-doc",
+  "version": "0.1.0",
+  "description": "Matriks doc project",
+  "main": "script/index.js",
+  "scripts": {
+    "unbroken": "node script/unbroken.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://gitlab.baidu.com/be-fe/matriks-doc.git"
+  },
+  "author": "befe",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.13.1"
+  }
+}
