@@ -336,11 +336,12 @@ var unbrokenUtils = {
             })
 
             contentProcessed[tag] = 1
-            console.log('@debug, backlinks = ', backlinks, fileContent)
-        }
+            // console.log('@debug, backlinks = ', backlinks, fileContent)
 
-        if (fileContent != initialFileContent) {
-            fs.writeFileSync(path, fileContent)
+
+            if (fileContent != initialFileContent) {
+                fs.writeFileSync(path, fileContent)
+            }
         }
 
         return {
