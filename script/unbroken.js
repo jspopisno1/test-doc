@@ -143,7 +143,7 @@ var unbrokenUtils = {
         hash = hash || ''
         return '<span type="' + type + '" tag="' + tag + '" hash="' + hash + '">'
             + (type == 'image' ? '!' : '')
-            + '[' + title + '](' + link + ')</span>'
+            + '[' + title + '](' + config.content + link + ')</span>'
     },
 
     escapeRegExp: function (str) {
